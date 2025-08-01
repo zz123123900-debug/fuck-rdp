@@ -14,12 +14,14 @@ jobs:
     - name: Install xRDP and setup user
       run: |
         sudo apt update
-        sudo apt install -y xrdp xfce4 xfce4-goodies
+        sudo apt install -y xrdp xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils
         sudo systemctl enable xrdp
         sudo systemctl start xrdp
         sudo adduser rdpuser --gecos "" --disabled-password
         echo "rdpuser:123456" | sudo chpasswd
         sudo usermod -aG sudo rdpuser
+        echo "xfce4-session" > /home/rdpuser/.xsession
+        sudo chown rdpuser:rdpuser /home/rdpuser/.xsession
 
     - name: Download and Start Playit Tunnel
       env:
@@ -27,7 +29,7 @@ jobs:
       run: |
         wget https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64 -O playit
         chmod +x playit
-        ./playit --secret "$PLAYIT_AUTH_KEY" & 
+        ./playit --secret "$PLAYIT_AUTH_KEY" &
         sleep 10
 
     - name: Keep alive
